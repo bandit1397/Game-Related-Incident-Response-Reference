@@ -40,8 +40,24 @@ header.top{position:sticky;top:0;z-index:10;background:var(--brand);color:#fff;p
 header.top .back{background:none;border:0;color:#fff;font-size:22px;padding:0 6px 0 0;cursor:pointer;display:none}
 header.top h1{font-size:17px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header.top .icon{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;width:36px;height:36px;font-size:16px;cursor:pointer}
-.searchbar{padding:10px 16px;background:var(--bg);position:sticky;top:56px;z-index:9;display:none}
-.searchbar input{width:100%;font:inherit;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.searchbar{padding:10px 16px 6px;background:var(--bg);position:sticky;top:56px;z-index:9;display:none}
+.sbox{max-width:728px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:0 6px 0 12px;box-shadow:var(--shadow)}
+.sbox:focus-within{border-color:var(--brand2)}
+.sbox svg{flex:none;color:var(--muted)}
+.sbox input{flex:1;min-width:0;font:inherit;font-size:16px;padding:11px 0;border:0;background:transparent;color:var(--ink);outline:none}
+.sbox input::-webkit-search-cancel-button{display:none}
+.sbox button{flex:none;border:0;background:none;color:var(--brand2);font-size:22px;line-height:1;width:36px;height:36px;cursor:pointer;display:none}
+.sbox.has button{display:block}
+.rcount{font-size:14px;font-weight:700;margin:8px 2px 10px;padding-left:8px;border-left:3px solid var(--brand2)}
+.rcount span{color:var(--muted);font-weight:400}
+.ritem{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bc,var(--line));border-radius:10px;padding:12px 12px 12px 14px;margin:8px 0;color:var(--ink);box-shadow:var(--shadow)}
+.ritem .tx{flex:1;min-width:0}
+.ritem .tx b{display:block;font-size:15px;font-weight:600}
+.ritem .tx span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.ritem mark,.v mark{background:#ffe58a;color:#1a1a1a;border-radius:2px;padding:0 1px}
+.r-c{--bc:var(--red)} .r-f{--bc:var(--amber)} .r-a{--bc:var(--blue)} .r-ok{--bc:var(--green)} .r-x{--bc:var(--muted)} .r-place{--bc:var(--brand2)} .r-topic{--bc:#8b5cf6}
+.k-place{background:var(--brand-soft);color:var(--brand2)} .k-topic{background:#efe7ff;color:#6d3fd6}
+details.v.sr{border-left:4px solid var(--bc,var(--line))}
 main{max-width:760px;margin:0 auto;padding:12px 16px 24px}
 nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
 nav.bottom a{flex:1;text-align:center;padding:8px 0 7px;color:var(--muted);font-size:12px;line-height:1.2}
@@ -146,7 +162,11 @@ a.lref{color:var(--brand2);text-decoration:underline;text-decoration-style:dotte
   <button class="icon" id="sbtn" aria-label="검색">🔍</button>
   <button class="icon" id="theme" aria-label="화면 밝기 전환">◐</button>
 </header>
-<div class="searchbar" id="sbar"><input id="q" type="search" placeholder="예: 환전, 똑딱이, 인형뽑기, 청소년, 홀덤" autocomplete="off"></div>
+<div class="searchbar" id="sbar"><div class="sbox" id="sbox">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <input id="q" type="search" placeholder="예: 똑딱이, 환전, 인형뽑기, 청소년 출입, 홀덤" autocomplete="off" enterkeyhint="search" aria-label="매뉴얼 검색">
+  <button id="qx" type="button" aria-label="검색어 지우기">×</button>
+</div></div>
 <main id="app"></main>
 <div class="sheet-bg" id="shbg"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT">
@@ -1087,7 +1107,7 @@ function about(){
     <li><b>홈 화면에 추가</b>: 크롬 ⋮ → ‘홈 화면에 추가’ / 사파리 공유 → ‘홈 화면에 추가’.</li>
     <li>이 파일 하나로 동작하며 외부 서버를 부르지 않습니다. 파일로 받아도 열 수 있습니다.</li>
     <li>체크리스트 표시는 이 화면을 닫으면 사라집니다(개인정보를 저장하지 않음).</li>
-    <li>상단 🔍로 ‘환전’, ‘청소년’, ‘§32’ 같은 단어를 검색할 수 있습니다.</li>
+    <li>홈 위쪽 검색창에 ‘환전’, ‘똑딱이’, ‘§32’ 같은 단어를 넣으면 바로 결과가 나옵니다. 다른 화면에서는 상단 🔍를 누르세요.</li>
   </ul></div>
   <div class="box warn small">이 매뉴얼은 현장 판단을 돕는 참고자료입니다. 최종 법률 판단은 법령 원문, 판례, 소속 관서·수사부서 지침을 따르세요.</div>`;
 }
@@ -1095,20 +1115,36 @@ function about(){
 function search(q){
   setTitle("검색");
   q = (q||"").trim();
-  if(!q){ app.innerHTML = `<p class="muted">검색어를 입력하세요.</p>`; return; }
-  const terms = q.toLowerCase().split(/\s+/);
-  const has = t => terms.every(w => t.toLowerCase().includes(w));
-  const vs = Object.keys(V).filter(id=>{const v=V[id];return has([v.t,v.base,v.pen,v.law,v.tip||"",v.ev.join(" ")].join(" "));});
-  const ps = P.filter(p=>has([p.n,p.s,p.basis,p.idf.join(" "),p.chk.map(c=>c.join(" ")).join(" "),p.mis.join(" ")].join(" ")));
-  const ss = S.map((s,i)=>[s,i]).filter(([s])=>has([s.t,s.see.join(" "),s.fork.flat().join(" "),s.act].join(" ")));
-  const ts = Object.entries(TOPICS).filter(([id,t])=>has([t.n,t.s,t.what.join(" "),t.mis.join(" "),"똑딱이 오토 자동 연타 매크로 여러대 다대"].join(" ")));
+  if(!q){ return home(); }
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const has = t => { t = t.toLowerCase(); return terms.every(w => t.includes(w)); };
+  const inTitle = t => terms.some(w => t.toLowerCase().includes(w));
+  const mark = t => { let h = esc(t); terms.forEach(w => { const re = new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + ")","gi"); h = h.replace(re,"<mark>$1</mark>"); }); return h; };
+  const worst = ks => ["c","f","a","ok","x"].find(k => ks.includes(k)) || "x";
+  const BADGE = {c:"형사",f:"과태료",a:"행정",ok:"적법",x:"판단",place:"장소",topic:"주제"};
+  const res = [];
+  Object.entries(TOPICS).forEach(([id,t])=>{
+    if(has([t.n,t.s,t.what.join(" "),t.mis.join(" "),t.chk.flat(2).join(" "),"똑딱이 오토 자동 연타 매크로 여러대 다대"].join(" ")))
+      res.push({k:"topic",href:"#topic/"+id,t:t.n,sub:"주제 · "+t.s,top:inTitle(t.n+" "+t.s)});
+  });
+  P.forEach(p=>{
+    if(has([p.n,p.s,p.basis,p.idf.join(" "),p.chk.map(c=>c.slice(0,2).join(" ")).join(" "),p.mis.join(" ")].join(" ")))
+      res.push({k:"place",href:"#place/"+p.id,t:p.n,sub:"장소 · "+p.s,top:inTitle(p.n+" "+p.s)});
+  });
+  S.forEach((x,i)=>{
+    if(has([x.t,x.see.join(" "),x.fork.flat().join(" "),x.act,x.v.map(v=>V[v]?V[v].t:"").join(" ")].join(" ")))
+      res.push({k:worst(x.fork.map(f=>f[2])),href:"#scen/"+i,t:x.t,sub:"상황 · "+x.p.map(id=>placeById(id).n).join(", "),top:inTitle(x.t)});
+  });
+  const vs = Object.keys(V).filter(id=>{const v=V[id];return has([v.t,v.base,v.pen,v.law,v.who,v.tip||"",v.ev.join(" ")].join(" "));});
+  // 제목에 검색어가 있는 것 → 상황 → 주제·장소 순
+  const rank = a => (a.top?0:2) + ((a.k==="place"||a.k==="topic")?1:0);
+  const links = res.sort((a,b)=>rank(a)-rank(b));
   app.innerHTML = `
-  <p class="small muted">‘${esc(q)}’ — 주제 ${ts.length} · 장소 ${ps.length} · 상황 ${ss.length} · 위반유형 ${vs.length}</p>
-  ${ts.length?`<div class="sec-label">주제</div><div class="list">${ts.map(([id,t])=>`<a class="item" href="#topic/${id}"><span class="ic">${t.ic}</span><span class="tx"><b>${t.n}</b><span>${t.s}</span></span><span class="ar">›</span></a>`).join("")}</div>`:""}
-  ${ps.length?`<div class="sec-label">장소</div><div class="list">${ps.map(p=>`<a class="item" href="#place/${p.id}"><span class="ic">${p.ic}</span><span class="tx"><b>${p.n}</b><span>${p.s}</span></span><span class="ar">›</span></a>`).join("")}</div>`:""}
-  ${ss.length?`<div class="sec-label">상황</div><div class="list">${ss.map(([s,i])=>`<a class="item" href="#scen/${i}"><span class="tx"><b>${esc(s.t)}</b></span><span class="ar">›</span></a>`).join("")}</div>`:""}
-  ${vs.length?`<div class="sec-label">위반유형</div>${vs.map(id=>vCard(id)).join("")}`:""}
-  ${!ts.length&&!ps.length&&!ss.length&&!vs.length?`<p>결과가 없습니다. 더 짧은 단어로 검색해 보세요.</p>`:""}`;
+  <div class="rcount">검색 결과 ${links.length + vs.length}건 <span>· 주제·장소·상황 ${links.length} · 위반유형 ${vs.length}</span></div>
+  ${links.map(r=>`<a class="ritem r-${r.k}" href="${r.href}"><span class="tx"><b>${mark(r.t)}</b><span>${esc(r.sub)}</span></span><span class="bd k-${r.k}">${BADGE[r.k]}</span></a>`).join("")}
+  ${vs.length?`<div class="sec-label">위반유형 · 적용법조 (눌러서 펼치기)</div>${vs.map(id=>vCard(id).replace('<details class="v"','<details class="v sr r-'+V[id].k+'"')).join("")}`:""}
+  ${!links.length&&!vs.length?`<div class="card small">‘${esc(q)}’ 결과가 없습니다. 더 짧은 단어로 검색해 보세요. 예: ‘환전’, ‘청소년’, ‘경품’</div>`:""}`;
+  app.querySelectorAll("details.v.sr summary .t").forEach(el=>{ const n=el.firstChild; if(n&&n.nodeType===3){ const sp=document.createElement("span"); sp.innerHTML=mark(n.textContent); el.replaceChild(sp,n);} });
 }
 
 /* ========================= 라우터 ========================= */
@@ -1122,7 +1158,11 @@ function route(){
   const top = {home:"home",places:"places",place:"places",topic:"places",scen:"scen",flow:"flow",law:"law"}[a]||"";
   document.querySelectorAll("#nav a").forEach(x=>x.classList.toggle("on",x.dataset.n===top));
   $("#back").style.display = (a==="home")?"none":"block";
-  if(a!=="search"){ $("#sbar").style.display="none"; }
+  const showBar = ["home","places","scen","law","search"].includes(a) && !(a==="scen" && b!==undefined);
+  $("#sbar").style.display = showBar ? "block" : "none";
+  const qv = a==="search" ? (params.get("q")||"") : "";
+  if(document.activeElement !== $("#q") || a!=="search"){ $("#q").value = qv; }
+  $("#sbox").classList.toggle("has", !!$("#q").value);
   ({home, places, place:()=>place(b), topic:()=>topic(b), scen:()=>b!==undefined?scen(+b):scenList(params.get("f")), flow, law:()=>law(params.get("f")), cases, about, search:()=>search(params.get("q"))}[a]||home)();
   window.scrollTo(0,0);
 }
@@ -1138,11 +1178,26 @@ app.addEventListener("click", e=>{
 
 $("#back").onclick = ()=>{ if(history.length>1) history.back(); else location.hash="#home"; };
 $("#sbtn").onclick = ()=>{
-  const bar=$("#sbar"); const show = bar.style.display!=="block";
-  bar.style.display = show?"block":"none";
-  if(show){ $("#q").focus(); }
+  if($("#sbar").style.display!=="block"){ location.hash = "#home"; }
+  setTimeout(()=>{ $("#q").focus(); window.scrollTo(0,0); }, 50);
 };
-let tmr; $("#q").addEventListener("input", e=>{ clearTimeout(tmr); tmr=setTimeout(()=>{ history.replaceState(null,"","#search?q="+encodeURIComponent(e.target.value)); search(e.target.value); document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("on")); $("#back").style.display="block"; },200); });
+let tmr;
+function runSearch(v){
+  $("#sbox").classList.toggle("has", !!v);
+  if(!v.trim()){
+    if(location.hash.startsWith("#search")) history.replaceState(null,"","#home");
+    route(); return;
+  }
+  const wasSearch = location.hash.startsWith("#search");
+  const url = "#search?q=" + encodeURIComponent(v);
+  if(wasSearch) history.replaceState(null,"",url); else history.pushState(null,"",url);
+  search(v);
+  document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("on"));
+  $("#back").style.display="block"; setTitle("검색");
+}
+$("#q").addEventListener("input", e=>{ $("#sbox").classList.toggle("has", !!e.target.value); clearTimeout(tmr); tmr=setTimeout(()=>runSearch(e.target.value),180); });
+$("#q").addEventListener("keydown", e=>{ if(e.key==="Enter"){ clearTimeout(tmr); runSearch(e.target.value); e.target.blur(); } });
+$("#qx").onclick = ()=>{ $("#q").value=""; runSearch(""); $("#q").focus(); };
 
 /* 화면 밝기 전환 (기기 설정 → 어둡게 → 밝게) */
 (function(){
