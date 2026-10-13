@@ -143,6 +143,14 @@ header.top .icon.star.on{color:#ffd54a}
 .ritem .rm{flex:none;border:0;background:none;color:var(--muted);font-size:20px;width:34px;height:34px;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;font-size:14px;padding:9px 16px;border-radius:999px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:.92}
+.keycard{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden;box-shadow:var(--shadow)}
+.keycard .hd{background:var(--amber-soft);color:var(--amber);font-weight:700;font-size:15px;padding:10px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line)}
+.keycard .hd svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.keycard ul{margin:0;padding:8px 14px 10px 30px;font-size:14.5px}
+.keycard li{margin:7px 0;line-height:1.55}
+.keycard li b{font-weight:700}
+.keycard li .muted{font-size:13px}
+.keycard .ft{font-size:12.5px;color:var(--muted);padding:0 14px 12px}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--card);border-radius:16px 16px 0 0;max-height:82vh;display:none;flex-direction:column;max-width:760px;margin:0 auto;box-shadow:0 -4px 20px rgba(0,0,0,.2);padding-bottom:env(safe-area-inset-bottom)}
 .sheet.on,.sheet-bg.on{display:flex}
@@ -719,6 +727,24 @@ const TOPICS = {
   act:["장치·기기 번호·대수·시간 촬영, 출처와 업주 인지 여부 진술 기록","시·군·구 게임 담당에 통보(행정처분: 자동진행장치 1차 영업정지 1개월, 1인 다대 1차 경고 — 시행규칙 별표5)","환전·개변조·도박 정황이 함께 있으면 그 부분은 형사 → 생활질서계 인계"]}
 };
 
+/* ---------- 현장 핵심 (홈 요약) : [행위, 적용법조·처벌, 보충] ---------- */
+const KEY = [
+  ["업주가 미등급·등급거부 게임물 제공", "게임산업법 §32①1·4 → §44①2 (5년↓/5천만원↓)", "게임명·버전·URL 특정 후 게임물관리위원회 확인"],
+  ["게임 점수·게임머니 환전을 업으로 함", "§32①7 → §44①2 (5년↓/5천만원↓)", "장부·계좌·손님 진술"],
+  ["게임물로 도박하게 하거나 내버려 둠", "§28①2 → §44①1 (5년↓/5천만원↓)", "영리로 장소 제공하면 형법 §247도"],
+  ["기기 개·변조 (확률·배당·자동 기능)", "§32①2 → §45 4호 (2년↓/2천만원↓)", ""],
+  ["허가·등록 없이 게임장 영업", "§26 → §45 2호 (2년↓/2천만원↓)", ""],
+  ["1만원 넘는 경품·현금·상품권 경품", "§28①3 → §44①1의2 (5년↓/5천만원↓)", "청소년게임장 전체이용가 기기만 1만원 이내 경품 허용"],
+  ["PC방·오락실 밤 10시~아침 9시 청소년 출입", "§28①7 → §46 2호 (1년↓/1천만원↓)", "보호자 동반이면 예외 · 청소년은 처벌 대상 아님"],
+  ["성인오락실(일반게임장)에 청소년 출입", "청소년보호법 §59 8호 (2년↓/2천만원↓) + 게임산업법 §48②4 과태료", ""],
+  ["차단 프로그램 미설치", "§28①6 → §48②5 과태료 (지자체 통보)", "정상 작동 중 우회 접속은 미설치 아님"],
+  ["똑딱이 제공 · 1명이 여러 대 동시 이용", "시행령 별표2 9호 · 별표2 2호 → 행정처분 (지자체 통보)", "형사처벌 없음 → 체포·압수 불가, 촬영으로 증거화"],
+  ["손님이 돈 걸고 베팅", "형법 §246 (1천만원↓ 벌금) · 사설토토는 국민체육진흥법 §48 3호 (5년↓)", ""],
+  ["사이트 접속·회원가입·무료머니만", "처벌 근거 없음", "충전만 확인되면 단정 말고 베팅 내역 추가 확인"],
+  ["실물 보드게임·홀덤펍 판돈", "게임산업법 아님 → 형법 §246·§247", "칩이 돈·재산상 이익으로 연결되는지 확인"],
+  ["도박 중독 상담 안내", "한국도박문제예방치유원 국번 없이 1336", ""]
+];
+
 /* ---------- 단속·판결 사례 ---------- */
 const CASES = [
  ["바다이야기","미등급 제공","2016 거창경찰 적발 / 서울북부지법 2013고단2209"],
@@ -892,6 +918,11 @@ function home(){
     <a class="big" href="#flow"><i>🧭</i><b>처리 절차</b><span>접수~종결, 판정 사다리, 종결 문안</span></a>
     <a class="big" href="#law"><i>⚖️</i><b>법조 총괄표</b><span>위반유형 ${Object.keys(V).length}개 · 제재별</span></a>
   </div>
+  <section class="keycard" aria-labelledby="keyhd">
+    <div class="hd" id="keyhd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 13h6l-1 8 8-10h-6z"/></svg>현장 핵심</div>
+    <ul>${KEY.map(k=>`<li><b>${esc(k[0])}</b> → ${L(esc(k[1]))}${k[2]?` <span class="muted">· ${L(esc(k[2]))}</span>`:""}</li>`).join("")}</ul>
+    <div class="ft">↓ = 이하. 법조를 누르면 조문 원문이 열립니다. 자세한 판단은 장소·상황 화면에서 확인하세요.</div>
+  </section>
   <div class="sec-label">반드시 기억할 5가지</div>
   <div class="card small">
     <ul class="tight">
