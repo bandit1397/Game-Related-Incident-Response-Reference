@@ -136,6 +136,13 @@ th{background:var(--gray-soft);white-space:nowrap}
 footer{font-size:12px;color:var(--muted);text-align:center;padding:16px}
 .hit mark{background:#ffe58a;color:#000;border-radius:2px}
 a.lref{color:var(--brand2);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;font-weight:700;white-space:nowrap;cursor:pointer}
+header.top .icon.star{font-size:19px;display:none}
+header.top .icon.star.on{color:#ffd54a}
+.vfav{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer;margin:2px 14px 12px}
+.vfav.on{border-color:#e0b100;color:#9a6b00;background:#fff6d6}
+.ritem .rm{flex:none;border:0;background:none;color:var(--muted);font-size:20px;width:34px;height:34px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;font-size:14px;padding:9px 16px;border-radius:999px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:.92}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--card);border-radius:16px 16px 0 0;max-height:82vh;display:none;flex-direction:column;max-width:760px;margin:0 auto;box-shadow:0 -4px 20px rgba(0,0,0,.2);padding-bottom:env(safe-area-inset-bottom)}
 .sheet.on,.sheet-bg.on{display:flex}
@@ -159,6 +166,7 @@ a.lref{color:var(--brand2);text-decoration:underline;text-decoration-style:dotte
 <header class="top">
   <button class="back" id="back" aria-label="뒤로">‹</button>
   <h1 id="ttl">게임신고 현장매뉴얼</h1>
+  <button class="icon star" id="favbtn" aria-label="즐겨찾기에 추가" aria-pressed="false">☆</button>
   <button class="icon" id="sbtn" aria-label="검색">🔍</button>
   <button class="icon" id="theme" aria-label="화면 밝기 전환">◐</button>
 </header>
@@ -180,7 +188,9 @@ a.lref{color:var(--brand2);text-decoration:underline;text-decoration-style:dotte
   <a href="#scen" data-n="scen"><b>💬</b>상황</a>
   <a href="#flow" data-n="flow"><b>🧭</b>절차</a>
   <a href="#law" data-n="law"><b>⚖️</b>법조</a>
+  <a href="#fav" data-n="fav"><b>⭐</b>즐겨찾기</a>
 </nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* =========================================================
@@ -868,7 +878,7 @@ function vCard(id, open){
       ${ADM[id]?`<div><span>행정</span><span>${L(esc("시행규칙 별표5{"+ADM[id][0]+"}"))} · ${esc(ADM[id][1])} <span class="small muted">(허가·등록 업소, 지자체)</span></span></div>`:""}
       <div><span>증거</span><span>${v.ev.map(x=>L(esc(x),c)).join("<br>")}</span></div>
       ${v.tip?`<div><span>유의</span><span>${L(esc(v.tip),c)}</span></div>`:""}
-    </div></details>`;
+    </div><button class="vfav${isFav("v:"+id)?" on":""}" data-v="${id}" type="button">${isFav("v:"+id)?"★ 즐겨찾기됨":"☆ 즐겨찾기"}</button></details>`;
 }
 function vChip(id){ const v=V[id]; return v?`<a class="chip" href="#v-${id}" data-v="${id}">${esc(v.t.length>22?v.t.slice(0,22)+"…":v.t)}</a>`:""; }
 
@@ -1107,6 +1117,7 @@ function about(){
     <li><b>홈 화면에 추가</b>: 크롬 ⋮ → ‘홈 화면에 추가’ / 사파리 공유 → ‘홈 화면에 추가’.</li>
     <li>이 파일 하나로 동작하며 외부 서버를 부르지 않습니다. 파일로 받아도 열 수 있습니다.</li>
     <li>체크리스트 표시는 이 화면을 닫으면 사라집니다(개인정보를 저장하지 않음).</li>
+    <li>자주 보는 장소·상황·위반유형은 ☆를 눌러 <b>즐겨찾기</b> 탭에 모아 둘 수 있습니다(이 휴대폰에만 저장).</li>
     <li>홈 위쪽 검색창에 ‘환전’, ‘똑딱이’, ‘§32’ 같은 단어를 넣으면 바로 결과가 나옵니다. 다른 화면에서는 상단 🔍를 누르세요.</li>
   </ul></div>
   <div class="box warn small">이 매뉴얼은 현장 판단을 돕는 참고자료입니다. 최종 법률 판단은 법령 원문, 판례, 소속 관서·수사부서 지침을 따르세요.</div>`;
@@ -1147,6 +1158,76 @@ function search(q){
   app.querySelectorAll("details.v.sr summary .t").forEach(el=>{ const n=el.firstChild; if(n&&n.nodeType===3){ const sp=document.createElement("span"); sp.innerHTML=mark(n.textContent); el.replaceChild(sp,n);} });
 }
 
+/* ========================= 즐겨찾기 (이 기기에만 저장) ========================= */
+const FAV_KEY = "game-manual-fav-v1";
+let favMem = [];
+function favList(){ try{ const v = JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); return Array.isArray(v) ? v : favMem; }catch(e){ return favMem; } }
+function favSave(list){ favMem = list; try{ localStorage.setItem(FAV_KEY, JSON.stringify(list)); }catch(e){} }
+const isFav = k => favList().some(f => f.k === k);
+function favToggle(k){
+  let list = favList();
+  const on = !list.some(f => f.k === k);
+  list = on ? [{k, ts: Date.now()}, ...list] : list.filter(f => f.k !== k);
+  favSave(list);
+  toast(on ? "즐겨찾기에 추가했습니다" : "즐겨찾기에서 뺐습니다");
+  return on;
+}
+let toastT;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("on"), 1400); }
+
+/* 즐겨찾기 키 → 화면 정보 (상황은 번호가 바뀔 수 있어 제목으로 저장) */
+function favInfo(k){
+  const [type, ...rest] = k.split(":"); const id = rest.join(":");
+  if(type === "place"){ const p = placeById(id); return p && {href:"#place/"+id, t:p.n, sub:"장소 · "+p.s, cls:"place", bd:"장소"}; }
+  if(type === "topic"){ const t = TOPICS[id]; return t && {href:"#topic/"+id, t:t.n, sub:"주제 · "+t.s, cls:"topic", bd:"주제"}; }
+  if(type === "scen"){ const i = S.findIndex(x => x.t === id); if(i < 0) return null; const x = S[i];
+    const w = ["c","f","a","ok","x"].find(c => x.fork.some(f => f[2] === c)) || "x";
+    return {href:"#scen/"+i, t:x.t, sub:"상황 · "+x.p.map(pid=>placeById(pid).n).join(", "), cls:w, bd:{c:"형사",f:"과태료",a:"행정",ok:"적법",x:"판단"}[w]}; }
+  if(type === "v"){ const v = V[id]; return v && {href:"#fav", vid:id, t:v.t, sub:"위반유형 · "+v.base, cls:v.k, bd:{c:"형사",f:"과태료",a:"행정",x:"해당없음"}[v.k]}; }
+  return null;
+}
+function currentFavKey(){
+  const h = location.hash.slice(1).split("?")[0]; const [a, b] = h.split("/");
+  if(a === "place" && placeById(b)) return "place:" + b;
+  if(a === "topic" && TOPICS[b]) return "topic:" + b;
+  if(a === "scen" && b !== undefined && S[+b]) return "scen:" + S[+b].t;
+  return null;
+}
+function syncFavBtn(){
+  const k = currentFavKey(), btn = $("#favbtn");
+  btn.style.display = k ? "block" : "none";
+  if(!k) return;
+  const on = isFav(k);
+  btn.textContent = on ? "★" : "☆"; btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", on); btn.setAttribute("aria-label", on ? "즐겨찾기에서 빼기" : "즐겨찾기에 추가");
+}
+$("#favbtn").onclick = ()=>{ const k = currentFavKey(); if(k){ favToggle(k); syncFavBtn(); } };
+
+function fav(){
+  setTitle("즐겨찾기");
+  const items = favList().map(f => ({f, i: favInfo(f.k)})).filter(x => x.i);
+  const links = items.filter(x => !x.i.vid), vs = items.filter(x => x.i.vid);
+  app.innerHTML = `
+  <h2>즐겨찾기</h2>
+  ${!items.length ? `<div class="card small">
+      <p>장소·주제·상황 화면 <b>오른쪽 위의 ☆</b>를 누르면 여기에 모입니다.</p>
+      <p>위반유형 카드는 펼친 뒤 <b>☆ 즐겨찾기</b> 버튼을 누르세요.</p>
+      <p class="muted">즐겨찾기는 이 휴대폰(브라우저)에만 저장됩니다.</p></div>` : `
+  <div class="rcount">${items.length}개 <span>· 최근 추가한 순서</span></div>
+  ${links.map(({f,i})=>`<div class="ritem r-${i.cls}"><a class="tx" href="${i.href}" style="color:inherit"><b>${esc(i.t)}</b><span>${esc(i.sub)}</span></a><span class="bd k-${i.cls}">${i.bd}</span><button class="rm" data-rm="${esc(f.k)}" aria-label="즐겨찾기에서 빼기">×</button></div>`).join("")}
+  ${vs.length ? `<div class="sec-label">위반유형 · 적용법조</div>${vs.map(({i})=>vCard(i.vid)).join("")}` : ""}
+  <p class="small muted" style="margin-top:14px">즐겨찾기는 이 휴대폰(브라우저)에만 저장됩니다. 브라우저 데이터를 지우면 함께 지워집니다.</p>`}`;
+  app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { favToggle(b.dataset.rm); fav(); });
+}
+
+/* 위반유형 카드의 ☆ 버튼 */
+app.addEventListener("click", e => {
+  const b = e.target.closest("button.vfav"); if(!b) return;
+  const on = favToggle("v:" + b.dataset.v);
+  document.querySelectorAll(`button.vfav[data-v="${b.dataset.v}"]`).forEach(x => { x.classList.toggle("on", on); x.textContent = on ? "★ 즐겨찾기됨" : "☆ 즐겨찾기"; });
+  if(location.hash.startsWith("#fav") && !on) fav();
+});
+
 /* ========================= 라우터 ========================= */
 function setTitle(t){ $("#ttl").textContent=t; document.title = t==="게임신고 현장매뉴얼"?t:t+" · 게임신고 현장매뉴얼"; }
 function route(){
@@ -1155,7 +1236,7 @@ function route(){
   const params = new URLSearchParams(qs||"");
   const [a,b] = path.split("/");
   if(a.startsWith("v-")) return; // 페이지 안 위반유형 앵커
-  const top = {home:"home",places:"places",place:"places",topic:"places",scen:"scen",flow:"flow",law:"law"}[a]||"";
+  const top = {fav:"fav",home:"home",places:"places",place:"places",topic:"places",scen:"scen",flow:"flow",law:"law"}[a]||"";
   document.querySelectorAll("#nav a").forEach(x=>x.classList.toggle("on",x.dataset.n===top));
   $("#back").style.display = (a==="home")?"none":"block";
   const showBar = ["home","places","scen","law","search"].includes(a) && !(a==="scen" && b!==undefined);
@@ -1163,7 +1244,8 @@ function route(){
   const qv = a==="search" ? (params.get("q")||"") : "";
   if(document.activeElement !== $("#q") || a!=="search"){ $("#q").value = qv; }
   $("#sbox").classList.toggle("has", !!$("#q").value);
-  ({home, places, place:()=>place(b), topic:()=>topic(b), scen:()=>b!==undefined?scen(+b):scenList(params.get("f")), flow, law:()=>law(params.get("f")), cases, about, search:()=>search(params.get("q"))}[a]||home)();
+  ({home, places, place:()=>place(b), topic:()=>topic(b), scen:()=>b!==undefined?scen(+b):scenList(params.get("f")), flow, law:()=>law(params.get("f")), cases, about, fav, search:()=>search(params.get("q"))}[a]||home)();
+  syncFavBtn();
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", route);
